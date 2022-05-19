@@ -1,0 +1,482 @@
+import * as React from 'react';
+import styles from './Treeview.module.scss';
+import { ITreeviewProps } from './ITreeviewProps';
+import { escape } from '@microsoft/sp-lodash-subset';
+
+import { sp } from "@pnp/sp/presets/all";
+import TreeView from "@material-ui/lab/TreeView";
+import TreeItem from "@material-ui/lab/TreeItem";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import { TextField,Dropdown,IDropdownOption,Label,PrimaryButton,ChoiceGroup,IChoiceGroupOption } from 'office-ui-fabric-react/lib';
+
+export default class Treeview extends React.Component<any, any> {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      dataColl:[],
+      treeData:[],
+      EnclouserUploadedFiles:[],
+      MasterID:0
+    };
+    this._onChange=this._onChange.bind(this);
+    
+  }
+
+
+  async componentDidMount(){
+    await this.getNavData("ERP").then(()=>{
+        //Remove Form Item from an array as its loaded by default when getting items from Library
+
+        var array = [...this.state.treeData];
+        for(var i = 0; i <= array.length - 1; i++){
+            for(var k = 0; k <= array[i].data.length - 1; k++){
+            debugger
+                if(array[i].data[k].text == "Forms"){
+                    array[i].data.splice(k--,1);
+                }
+            }
+        }
+        this.setState({treeData: array});
+        this.setState({Status: "Updated"});
+    })
+  }
+
+  public onFileUpload (file,title) {
+    debugger;
+    let File = file;
+    let isValid = true;
+    let fileArray = [];
+    let fileNames = [];
+    let files = [];
+    files = this.state.EnclouserUploadedFiles;
+    
+    for (let i=0;i<File.length;i++)
+    {
+      let currentFile = File[i];
+      var isFiileExists = false;
+      
+      for (let index = 0; index< files.length;index++)
+      {
+        const element = files[index];
+        if(element.File.name && element.File.name == currentFile.name)
+        {
+          isFiileExists =  true;
+        }
+        else if (element.File.FileLeafRef && element.File.FileLeafRef == currentFile.name)
+        {
+          isFiileExists =  true;
+        }
+      }
+      if (isFiileExists == false)
+      {
+        fileNames.push(currentFile.name);
+        files.push({
+          File:currentFile,
+          Title:title
+        })
+      }
+       
+    }
+    this.setState({
+      EnclouserUploadedFiles:files
+    })
+  }
+
+  public bindSavedEnclouserUploadedFiles () {
+    debugger;
+    let uploadedFiles = this.state.EnclouserUploadedFiles;
+    let Data = uploadedFiles,
+    MakeItem = (y,i)=>{
+      let fileName = y.File;
+      if( fileName && fileName.name){
+        let files = [];
+        files = fileName.name;
+         return (
+          <li>     
+            <span>
+             <a href="javascript:{}">{files}
+           </a>
+           </span>
+           {<a title={'Deselect'} onClick={(e)=>this.removeSelectedFile(fileName)}><i
+           className="fa fa-times-circle" arua-aria-hidden="true"
+         ></i>Remove</a>}
+        </li>
+         )       
+      }
+      else if (fileName && fileName.FileLeafRef){
+        let files = fileName.FileLeafRef;
+        if(files.indexOf('~') != -1){
+          let data = files.split('~');
+          files = data[1];
+        }
+        return(
+          <li>
+            <span>
+               {/* <a href="javascript:{}" onClick={() => {this.downloadFile(fileName.FileRef)}}> */}
+               <a href="javascript:{}">
+                 {files}
+                </a>
+               </span>
+              {/* <a title={"Delete"} onClick={(e)=>this.deleteUploadedFile(fileName.FileLeafRef)}> */}
+              <a title={"Delete"}>
+               <i className="fa fa-times-circle" aria-hidden="true"></i>
+              </a>
+          </li>
+        )
+      }
+    }
+     uploadedFiles.map((y,i)=>{
+      let fileName = y.File;
+      if( fileName && fileName.name){
+        let files = [];
+        files = fileName.name;
+        return (
+          <li>
+            <span>
+          <a href="javascript:{}">{files}
+          </a>
+          </span>
+          {<a title={'Deselect'} onClick={(e)=>this.removeSelectedFile(fileName)}><i
+          className="fa fa-times-circle-o" arua-aria-hidden="true"
+        ></i></a>}
+        </li>     
+        )
+      }
+      else if (fileName && fileName.FileLeafRef){
+        let files = fileName.FileLeafRef;
+        if(files.indexOf('~') != -1){
+          let data = files.split('~');
+          files = data[1];
+        }
+        return(
+          <li>
+            <span>
+              {/* <a href="javascript:{}" onClick={() => {this.downloadFile(fileName.FileRef)}}> */}
+              <a href="javascript:{}">
+                {files}
+                </a>
+              </span>
+              {/* <a title={"Delete"} onClick={(e)=>this.deleteUploadedFile(fileName.FileLeafRef)}> */}
+              <a title="Delete">
+                <i className="fa fa-times-circle-o" aria-hidden="true"></i>
+              </a>
+          </li>
+          )
+         }
+        }) 
+        if( Data && Data.length){
+          return(
+            <div>
+              <label>Attached Files</label>
+              <ul>
+                {Data.map(MakeItem)}
+              </ul>
+            </div>
+          )
+        }
+    } 
+
+public removeSelectedFile (row) {
+    debugger;
+    let rowData =row;
+    if(this.state.EnclouserUploadedFiles && this.state.EnclouserUploadedFiles.length>0){
+        let newArray = [];
+        for(let index = 0; index<this.state.EnclouserUploadedFiles.length;index++){
+        const element = this.state.EnclouserUploadedFiles[index];
+        if(element && element.File.name){
+            if(row.name != element.File.name){
+            newArray.push(element);
+            }
+        }
+        else{
+            newArray.push(element);
+        }
+        }
+        this.setState({
+            EnclouserUploadedFiles:newArray
+        })
+    }
+    }
+
+    public async onSubmit () {
+        debugger;
+        for(let index = 0;index<this.state.EnclouserUploadedFiles.length;index++){
+          debugger;
+          const element = this.state.EnclouserUploadedFiles[index];
+          var fileName = element.File.name;
+          var title = element.Title
+          var fileExist:string = fileName.substring(fileName.lastIndexOf('.'),fileName.length);
+          fileName = fileName.replace(/[\)!@#$%^&*_+;<(){}>?/|\,:-]+/g,"-");
+          const file = await sp.web.getFolderByServerRelativeUrl('TestLib').files.add(fileName,element.File,true).then(async (result:any
+        )=>{
+          debugger
+          await result.file.getItem().then(async(file)=>{
+            debugger;
+            console.log(file); 
+            await file.update({
+              Title: this.state.MasterID+"--"+title
+              
+            })
+          .then(async(myupdate) => {
+            console.log("Metadata Updated");
+          });
+        })
+        })
+        }
+      }
+
+  private async _onChange(event){
+    await this.setState({[event.target.name]: event.target.value});
+    debugger;
+  }
+
+    getNavData=async (libraryName)=>{
+    let treeData=[];
+    let obj1={text:libraryName,data:[]}
+    treeData.push(obj1);
+
+    await sp.web.folders.getByName(libraryName).folders//.orderBy("Created", false)
+        .get().then(async (data)=>{
+          //alert(data.length)
+          debugger;
+          const list = data
+          list.sort((a, b) => (a.TimeCreated < b.TimeCreated) ? 1 : -1)
+          for(var i1=0; i1 < list.length; i1++){
+             debugger
+            let obj2={text:list[i1].Name,data:[],url:`https://libertymutual.sharepoint.com/sites/SalesComp/SitePages/Navigation.aspx?RootFolder=/sites/SalesComp/ERP/${list[i1].Name}`}
+            treeData[0].data.push(obj2); 
+            let FolderName2= list[i1].Name
+            const ierte= await this.setSubFolder(libraryName,FolderName2,i1,treeData).then(async data1=>{
+            })      
+        }    
+    })
+    //New Code
+    let URL="/sites/SalesComp/"+libraryName
+    await sp.web.getFolderByServerRelativePath(URL).files.get().then(async files => {
+        for (var i = 0; i < files.length; i++) {
+            var _ServerRelativeUrl = files[i].ServerRelativeUrl;
+            let objfile1={text:files[i].Name,data:[],url:_ServerRelativeUrl}
+            treeData[0].data.push(objfile1);
+        }
+        this.setState({treeData:treeData})
+    })
+  }
+
+   public setSubFolder=async(libraryName,FolderName2,i1,treeData)=>{
+    
+    await sp.web.folders.getByName(libraryName).folders.getByName(FolderName2).folders.get().then(async (data1)=>{
+        for(var i2=0; i2 < data1.length; i2++){
+            let obj3={text:data1[i2].Name,data:[],url:`https://libertymutual.sharepoint.com/sites/SalesComp/SitePages/Navigation.aspx?RootFolder=/sites/SalesComp/ERP/${FolderName2}/${data1[i2].Name}`}
+            treeData[0].data[i1].data.push(obj3);  
+            //console.log(data[i1].Name + " - " + data[i1].ServerRelativeUrl);
+            let FolderName3= data1[i2].Name
+            const ierte= await this.setSubFolder2(libraryName,FolderName2,FolderName3,i1,i2,treeData)
+        }
+    })
+    let URL="/sites/SalesComp/"+libraryName+"/"+FolderName2
+    await sp.web.getFolderByServerRelativePath(URL).files.get().then(async files => {
+        for (var i = 0; i < files.length; i++) {
+            var _ServerRelativeUrl = files[i].ServerRelativeUrl;
+            let objfile1={text:files[i].Name,data:[],url:_ServerRelativeUrl}
+            //treeData[0].data.push(objfile1);
+            treeData[0].data[i1].data.push(objfile1);
+        }
+    })
+  }
+
+  public setSubFolder2=async(libraryName,FolderName2,FolderName3,i1,i2,treeData)=>{
+    
+    let URL="/sites/SalesComp/"+libraryName+"/"+FolderName2 + "/"+FolderName3
+    await sp.web.getFolderByServerRelativePath(URL).files.get().then(async files => {
+        for (var i = 0; i < files.length; i++) {
+            var _ServerRelativeUrl = files[i].ServerRelativeUrl;
+            let obj4={text:files[i].Name,data:[],url:_ServerRelativeUrl}
+            treeData[0].data[i1].data[i2].data.push(obj4);
+            sp.web.getFolderByServerRelativePath(_ServerRelativeUrl).getItem().then(item=> {
+                console.log(item);
+            });
+        }
+    });
+  }
+
+  addListItemAttachment=()=>{
+    var item={
+      Title:"Test Add Attachment"
+    }
+    this.AddListItemAttachment("TestList",item).then(async(res:any)=>{
+        debugger;
+        this.onSubmit()
+     })
+  }
+
+  public AddListItemAttachment(listname,body):Promise<string>{
+    debugger;
+    return new Promise<string>((resolve,reject)=>{
+        sp.web.lists
+          .getByTitle("TestList")
+          .items.add(body)
+          .then(async (response: any) => {
+              debugger;
+              this.setState({MasterID:response.data.Id},()=>{
+                resolve(response.data)
+              })
+              
+            },()=>{
+              reject("Error")
+          })
+    })
+  }
+
+  public render(): React.ReactElement<any> {
+    const renderLabel = item => (
+        <span
+          onClick={event => {
+              debugger;
+              if(item.url){
+                alert(item.url);
+                /////this.location.href=""
+                window.location.href=item.url
+
+              }
+              else{
+                alert(item.text)
+              }
+            // if you want after click do expand/collapse comment this two line
+            event.stopPropagation();
+            event.preventDefault();
+          }}
+        >
+          {item.text}
+        </span>
+      );
+
+    return(<div>
+        {this.state.treeData.length > 0 && 
+            <TreeView
+                defaultCollapseIcon={<ExpandMoreIcon />}
+                defaultExpanded={["root"]}
+                defaultExpandIcon={<ChevronRightIcon />}
+                >
+                {this.state.treeData.map((item1,index1)=>{
+                    return(
+                        <TreeItem nodeId={item1.text+index1} label={renderLabel(item1)}>
+                        {item1.data.length > 0 && 
+                        item1.data.map((item2,index2)=>{
+                            return(
+                                <TreeItem nodeId={item2.text+index2} label={renderLabel(item2)}>
+                                
+                                {item2.data.length > 0 && 
+                                    item2.data.map((item3,index3)=>{
+                                        return(
+                                            <TreeItem nodeId={item3.text+index3} label={renderLabel(item3)}>
+                                            {item3.data.length > 0 && 
+                                                item3.data.map((item4,index4)=>{
+                                                    return(
+                                                        <TreeItem nodeId={item4.text+index4} label={renderLabel(item4)}>
+                                                
+                                                        </TreeItem>
+                                                    )
+                                                })             
+                                            }
+                                            </TreeItem>
+                                        )
+                                    })             
+                                }
+
+                                </TreeItem>
+                            )
+                        })             
+                        }
+                        </TreeItem>
+                    )
+                })}           
+            </TreeView>
+        }
+        <div>
+        <TextField
+              label="Title1"
+              id="txtTitle1"
+              required={false}
+              multiline={false}
+              value={this.state.Title1}
+              name='Title1'
+              onChange={this._onChange}
+              />
+        <label >Attachments:</label>
+            <input type="file" multiple={true} id='uploadFile1' onChange={(e)=>this.onFileUpload(e.target.files,this.state.Title1)}></input>
+          </div>
+          <PrimaryButton onClick={(e)=>this.setState({show2:true})}>Add</PrimaryButton>
+        {this.state.show2 &&
+        <div>
+        <TextField
+              label="Title2"
+              id="txtTitle2"
+              required={false}
+              multiline={false}
+              value={this.state.Title2}
+              name='Title2'
+              onChange={this._onChange}
+              />
+        <label >Attachments:</label>
+            <input type="file" multiple={true} id='uploadFile2' onChange={(e)=>this.onFileUpload(e.target.files,this.state.Title2)}></input>
+            <PrimaryButton onClick={(e)=>this.setState({show3:true})}>Add</PrimaryButton>
+          </div>
+          
+        }
+        {this.state.show3 &&
+        <div>
+        <TextField
+              label="Title3"
+              id="txtTitle3"
+              required={false}
+              multiline={false}
+              value={this.state.Title3}
+              name='Title3'
+              onChange={this._onChange}
+              />
+        <label >Attachments:</label>
+            <input type="file" multiple={true} id='uploadFile3' onChange={(e)=>this.onFileUpload(e.target.files,this.state.Title3)}></input>
+            <PrimaryButton onClick={(e)=>this.setState({show4:true})}>Add</PrimaryButton>
+          </div>
+          
+        }
+        {this.state.show4 &&
+        <div>
+        <TextField
+              label="Title4"
+              id="txtTitle4"
+              required={false}
+              multiline={false}
+              value={this.state.Title4}
+              name='Title4'
+              onChange={this._onChange}
+              />
+        <label >Attachments:</label>
+            <input type="file" multiple={true} id='uploadFile4' onChange={(e)=>this.onFileUpload(e.target.files,this.state.Title4)}></input>
+            <PrimaryButton onClick={(e)=>this.setState({show5:true})}>Add</PrimaryButton>
+          </div>      
+        }
+
+        {this.state.show5 &&
+        <div>
+        <TextField
+              label="Title5"
+              id="txtTitle5"
+              required={false}
+              multiline={false}
+              value={this.state.Title5}
+              name='Title5'
+              onChange={this._onChange}
+              />
+        <label >Attachments:</label>
+            <input type="file" multiple={true} id='uploadFile5' onChange={(e)=>this.onFileUpload(e.target.files,this.state.Title5)}></input>
+            
+          </div>      
+        }
+            <PrimaryButton onClick={this.addListItemAttachment}>Submit</PrimaryButton>
+            
+        </div>)
+  }
+}
