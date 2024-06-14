@@ -14,3 +14,11 @@ New Feature in HTML
 Auth token Concept
 Media Queries Concept/animations
 CSS tricks and concepts
+
+Q. Differences between var, let, and const
+var	let	const
+The scope of a var variable is functional or global scope.	The scope of a let variable is block scope.	The scope of a const variable is block scope.
+var can be updated and re-declared in the same scope.	let can be updated but cannot be re-declared in the same scope.	const can neither be updated or re-declared in any scope.
+It can be accessed without initialization as its default value is “undefined”.	let cannot be accessed without initialization otherwise it will give ‘referenceError’.	const cannot be accessed without initialization, as it cannot be declared without initialization.
+
+Q. 
