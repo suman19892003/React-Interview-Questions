@@ -21,4 +21,11 @@ The scope of a var variable is functional or global scope.	The scope of a let va
 var can be updated and re-declared in the same scope.	let can be updated but cannot be re-declared in the same scope.	const can neither be updated or re-declared in any scope.
 It can be accessed without initialization as its default value is “undefined”.	let cannot be accessed without initialization otherwise it will give ‘referenceError’.	const cannot be accessed without initialization, as it cannot be declared without initialization.
 
-Q. 
+Q. Difference Between Primitive and Non Primitive Data Structure?
+Primitive data structure	Non Primitive Data structure
+Primitive data structure is the data structure that allows you to store only single data type values.	Non-Primitive data structure is a data structure that allows you to store multiple data type values.
+integer, boolean, character, float, etc. are some examples of primitive data structures.	Array, Linked List, Stack, etc. are some examples of non-primitive data structures.
+Primitive data structure always contains some value i.e. these data structures do not allow you to store NULL values.	You can store a NULL value in the non-primitive data structures.
+
+
+
