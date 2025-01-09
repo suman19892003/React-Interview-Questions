@@ -27,5 +27,19 @@ Primitive data structure is the data structure that allows you to store only sin
 integer, boolean, character, float, etc. are some examples of primitive data structures.	Array, Linked List, Stack, etc. are some examples of non-primitive data structures.
 Primitive data structure always contains some value i.e. these data structures do not allow you to store NULL values.	You can store a NULL value in the non-primitive data structures.
 
+//CTS
+GetMemo
+UseMemo
+Middleware - Thung and Saga
+UseEffect
+UseSate
+Hooks
+Batching of SetState
+Destructring in React
+Rerender
+Optimizzation in React
+Arrow Function
+High Order Function
+
 
 
