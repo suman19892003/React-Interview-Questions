@@ -1,0 +1,114 @@
+Diff between Components?
+Function Components: These are simple JavaScript functions that take props as input and return JSX elements. They are often used for presentational or stateless components.
+
+Class Components: These are ES6 classes that extend from React.Component or React.PureComponent. They have a render() method where you define the structure of your component's UI using JSX. Class components are used for components that need to manage state or have lifecycle methods.
+
+PureComponent?
+PureComponent is similar to Component but it skips re-renders for same props and state. 
+
+Built-in React Hooks?
+useState declares a state variable that you can update directly.
+useReducer declares a state variable with the update logic inside a reducer function.
+State Hooks
+function ImageGallery() {
+  const [index, setIndex] = useState(0);
+Context Hooks 
+Context lets a component receive information from distant parents without passing it as props. For example, your app’s top-level component can pass the current UI theme to all components below, no matter how deep.
+
+useContext reads and subscribes to a context.
+function Button() {
+  const theme = useContext(ThemeContext);
+Ref Hooks 
+Refs let a component hold some information that isn’t used for rendering, like a DOM node or a timeout ID. Unlike with state, updating a ref does not re-render your component. Refs are an “escape hatch” from the React paradigm. They are useful when you need to work with non-React systems, such as the built-in browser APIs.
+
+useRef declares a ref. You can hold any value in it, but most often it’s used to hold a DOM node.
+useImperativeHandle lets you customize the ref exposed by your component. This is rarely used.
+function Form() {
+  const inputRef = useRef(null);
+Effect Hooks 
+Effects let a component connect to and synchronize with external systems. This includes dealing with network, browser DOM, animations, widgets written using a different UI library, and other non-React code.
+
+useEffect connects a component to an external system.
+function ChatRoom({ roomId }) {
+  useEffect(() => {
+    const connection = createConnection(roomId);
+    connection.connect();
+    return () => connection.disconnect();
+  }, [roomId]);
+  // ...
+Performance Hooks 
+A common way to optimize re-rendering performance is to skip unnecessary work. For example, you can tell React to reuse a cached calculation or to skip a re-render if the data has not changed since the previous render.
+To skip calculations and unnecessary re-rendering, use one of these Hooks:
+useMemo lets you cache the result of an expensive calculation.
+useCallback lets you cache a function definition before passing it down to an optimized component.
+function TodoList({ todos, tab, theme }) {
+  const visibleTodos = useMemo(() => filterTodos(todos, tab), [todos, tab]);
+  // ...
+
+Q. Event.PreventDefault()
+preventDefault() is invoked to prevent the default form submission behavior, allowing the React class component to manage the submit event and the corresponding state changes without triggering a browser page reload.
+
+Q. What is Payload in React? 
+In React, a payload refers to the data that is sent along with an action or an event. It is a way to pass additional information from the component that triggered the action to the reducer or the event handler.
+
+Q. UseEffect
+useEffect hook can be used to replicate lifecycle behavior, and useState can be used to store state in a function component.
+useEffect(() => {
+        if(!props.fetched) {
+            props.fetchRules();
+        }
+        console.log('mount it!');
+}, []);
+
+Q. Arrow Function:
+
+hello = () => {
+  return "Hello World!";
+}
+
+Q. Array Methods
+const myArray = ['apple', 'banana', 'orange'];
+const myList = myArray.map((item) => <p>{item}</p>)
+
+Q. Destructuring
+We may have an array or object that we are working with, but we only need some of the items contained in these.
+Destructuring makes it easy to extract only what is needed out of array.
+const vehicles = ['mustang', 'f-150', 'expedition'];
+const [car, truck, suv] = vehicles;
+
+If we only want the car and suv we can simply leave out the truck but keep the comma:
+const vehicles = ['mustang', 'f-150', 'expedition'];
+const [car,, suv] = vehicles;
+
+Q. Spread Operator
+The JavaScript spread operator (...) allows us to quickly copy all or part of an existing array or object into another array or object.
+Assign the first and second items from numbers to variables and put the rest in an array:
+const numbers = [1, 2, 3, 4, 5, 6];
+const [one, two, ...rest] = numbers;
+
+const myVehicle = {
+  brand: 'Ford',
+  model: 'Mustang',
+  color: 'red'
+}
+
+const updateMyVehicle = {
+  type: 'car',
+  year: 2021, 
+  color: 'yellow'
+}
+
+const myUpdatedVehicle = {...myVehicle, ...updateMyVehicle}
+
+Q. By using React.memo(), the rendering result is cached based on props. If the props haven't changed since the last render, React reuses the previously rendered result instead of redoing the rendering process. This saves time and resources.
+
+Q.  What is batching ?
+Batching is when multiple calls to setState are griouped into only one state update.
+In React, when you call setState(), React doesn't immediately apply the state changes. Instead, it schedules the updates to be processed in batches. This means that multiple calls to setState() within the same synchronous event handler or lifecycle method do not trigger immediate re-renders. So Batching is used to triggger once.
+handleClick = () => {
+    ReactDOM.unstable_batchedUpdates(() => {
+      this.setState({ count: this.state.count + 1 });
+      this.setState({ count: this.state.count + 1 });
+      this.setState({ count: this.state.count + 1 });
+    });
+  };//Here Setstate will be called only once.
